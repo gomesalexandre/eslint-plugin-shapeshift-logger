@@ -39,19 +39,24 @@ const rules = {
           loc: node.loc,
           message: `No native console.${method} allowed, use moduleLogger.${method} instead`,
           fix: function (fixer) {
-            const filePath = context.getFilename()
-            const fileName = path.parse(filePath).name
+            const filePath = context.getFilename();
+            const fileName = path.parse(filePath).name;
             switch (method) {
               case "error": {
                 const args = consoleCallNode.arguments;
-                const [argc, argv, ...rest] = args
+                const [argc, argv, ...rest] = args;
                 const [error, errorText] =
                   // Handle both (errorText, error) / (error) arities
                   args.length === 1 ? [argc] : [argv, argc];
-                const parsedError = error.raw ?? error.name
-                const parsedErrorText = errorText?.raw ?? errorText?.name ?? null
-                const parsedRest = (rest || []).map(restArg => restArg?.raw ?? restArg?.name ?? null).filter(Boolean)
-                const parsedArgs = [parsedError, parsedErrorText, ...parsedRest].filter(Boolean).join(',')
+                const parsedError = error.raw ?? error.name;
+                const parsedErrorText =
+                  errorText?.raw ?? errorText?.name ?? null;
+                const parsedRest = (rest || [])
+                  .map((restArg) => restArg?.raw ?? restArg?.name ?? null)
+                  .filter(Boolean);
+                const parsedArgs = [parsedError, parsedErrorText, ...parsedRest]
+                  .filter(Boolean)
+                  .join(",");
                 return [
                   ...(isLoggerDefined
                     ? []
@@ -103,14 +108,23 @@ const rules = {
               }
               case "warn": {
                 const args = consoleCallNode.arguments;
-                const [argc, argv, ...rest] = args
+                const [argc, argv, ...rest] = args;
                 const [warning, warningText] =
                   // Handle both (errorText, error) / (error) arities
                   args.length === 1 ? [argc] : [argv, argc];
-                const parsedWarning = warning.raw ?? warning.name
-                const parsedWarningText = warningText?.raw ?? warningText?.name ?? null
-                const parsedRest = (rest || []).map(restArg => restArg?.raw ?? restArg?.name ?? null).filter(Boolean)
-                const parsedArgs = [parsedWarning, parsedWarningText, ...parsedRest].filter(Boolean).join(',')
+                const parsedWarning = warning.raw ?? warning.name;
+                const parsedWarningText =
+                  warningText?.raw ?? warningText?.name ?? null;
+                const parsedRest = (rest || [])
+                  .map((restArg) => restArg?.raw ?? restArg?.name ?? null)
+                  .filter(Boolean);
+                const parsedArgs = [
+                  parsedWarning,
+                  parsedWarningText,
+                  ...parsedRest,
+                ]
+                  .filter(Boolean)
+                  .join(",");
 
                 return [
                   ...(isLoggerDefined
@@ -173,4 +187,3 @@ const rules = {
 module.exports = {
   rules,
 };
-

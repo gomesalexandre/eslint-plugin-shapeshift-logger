@@ -2,5 +2,8 @@
   "name": "eslint-plugin-shapeshift-logger",
   "description": "An eslint plugin converting console.* to their moduleLogger equivalent",
   "version": "1.0.0",
-  "main": "index.js"
+  "main": "index.js",
+  "devDependencies": {
+    "prettier": "2.7.1"
+  }
 }

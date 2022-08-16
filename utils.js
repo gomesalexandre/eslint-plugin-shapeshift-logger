@@ -18,6 +18,6 @@ const getVariableByName = (initScope, name) => {
   }
 
   return null;
-}
+};
 
-module.exports = { getVariableByName }
+module.exports = { getVariableByName };
