@@ -43,18 +43,18 @@ const rules = {
             const fileName = path.parse(filePath).name;
             switch (consoleMethod) {
               case "error": {
-                const args = consoleCallNode.arguments;
-                const [argc, argv, ...rest] = args;
+                const argv = consoleCallNode.arguments;
+                const [firstArg, secondArg, ...restArgs] = argv;
                 const [error, errorText] =
                   // Handle both (errorText, error) / (error) arities
-                  args.length === 1 ? [argc] : [argv, argc];
+                  argv.length === 1 ? [firstArg] : [secondArg, firstArg];
                 const parsedError = error.raw ?? error.name;
                 const parsedErrorText =
                   errorText?.raw ?? errorText?.name ?? null;
-                const parsedRest = (rest || [])
-                  .map((restArg) => restArg?.raw ?? restArg?.name ?? null)
+                const parsedrestArgs = (restArgs || [])
+                  .map((restArgsArg) => restArgsArg?.raw ?? restArgsArg?.name ?? null)
                   .filter(Boolean);
-                const parsedArgs = [parsedError, parsedErrorText, ...parsedRest]
+                const parsedargv = [parsedError, parsedErrorText, ...parsedrestArgs]
                   .filter(Boolean)
                   .join(",");
                 return [
@@ -72,12 +72,12 @@ const rules = {
                       ]),
                   fixer.replaceText(
                     consoleCallNode,
-                    `moduleLogger.error(${parsedArgs})`
+                    `moduleLogger.error(${parsedargv})`
                   ), // Raw litteral, or var name
                 ];
               }
               case "info": {
-                const args = consoleCallNode.arguments;
+                const argv = consoleCallNode.arguments;
                 const makeCookedTemplateLitteral = (arg) =>
                   arg.quasis?.[0]?.value?.cooked
                     ? `\`${arg.quasis?.[0]?.value?.cooked}\``
@@ -97,7 +97,7 @@ const rules = {
                       ]),
                   fixer.replaceText(
                     consoleCallNode,
-                    `moduleLogger.info(${args
+                    `moduleLogger.info(${argv
                       .map(
                         (arg) =>
                           makeCookedTemplateLitteral(arg) ?? arg.raw ?? arg.name
@@ -107,21 +107,21 @@ const rules = {
                 ];
               }
               case "warn": {
-                const args = consoleCallNode.arguments;
-                const [argc, argv, ...rest] = args;
+                const argv = consoleCallNode.arguments;
+                const [firstArg, secondArg, ...restArgs] = argv;
                 const [warning, warningText] =
                   // Handle both (errorText, error) / (error) arities
-                  args.length === 1 ? [argc] : [argv, argc];
+                  argv.length === 1 ? [firstArg] : [secondArg, firstArg];
                 const parsedWarning = warning.raw ?? warning.name;
                 const parsedWarningText =
                   warningText?.raw ?? warningText?.name ?? null;
-                const parsedRest = (rest || [])
-                  .map((restArg) => restArg?.raw ?? restArg?.name ?? null)
+                const parsedrestArgs = (restArgs || [])
+                  .map((restArgsArg) => restArgsArg?.raw ?? restArgsArg?.name ?? null)
                   .filter(Boolean);
-                const parsedArgs = [
+                const parsedargv = [
                   parsedWarning,
                   parsedWarningText,
-                  ...parsedRest,
+                  ...parsedrestArgs,
                 ]
                   .filter(Boolean)
                   .join(",");
@@ -141,7 +141,7 @@ const rules = {
                       ]),
                   fixer.replaceText(
                     consoleCallNode,
-                    `moduleLogger.warn(${parsedArgs})`
+                    `moduleLogger.warn(${parsedargv})`
                   ), // Raw litteral, or var name
                 ];
               }
