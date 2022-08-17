@@ -25,7 +25,7 @@ const rules = {
       function report(reference) {
         const sourceCode = context.getSourceCode();
         const node = reference.identifier;
-        const method = node.parent.property.name;
+        const consoleMethod = node.parent.property.name;
         const consoleCallNode = node.parent.parent;
 
         // Get logger as a module-level variable i.e import
@@ -37,11 +37,11 @@ const rules = {
         context.report({
           node: consoleCallNode,
           loc: node.loc,
-          message: `No native console.${method} allowed, use moduleLogger.${method} instead`,
+          message: `No native console.${consoleMethod} allowed, use moduleLogger.${consoleMethod} instead`,
           fix: function (fixer) {
             const filePath = context.getFilename();
             const fileName = path.parse(filePath).name;
-            switch (method) {
+            switch (consoleMethod) {
               case "error": {
                 const args = consoleCallNode.arguments;
                 const [argc, argv, ...rest] = args;
@@ -172,9 +172,9 @@ const rules = {
               .filter(isMemberAccess)
               .filter((reference) => {
                 const node = reference.identifier;
-                const method = node.parent.property.name;
+                const consoleMethod = node.parent.property.name;
 
-                return method !== "consoleFn"; // Exclude moduleLogger itself from being reported
+                return consoleMethod !== "consoleFn"; // Exclude moduleLogger itself from being reported
               })
               .forEach(report);
           }
