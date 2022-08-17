@@ -68,19 +68,21 @@ const rules = {
                 ]
                   .filter(Boolean)
                   .join(",");
-                return [
-                  ...(isLoggerDefined
-                    ? []
-                    : [
-                        // Insert moduleLogger import and moduleLogger at first source line, both will be auto-sorted
-                        fixer.insertTextBefore(
-                          sourceCode.ast,
-                          `
+
+                const maybeInsertLoggerImport = isLoggerDefined
+                  ? []
+                  : [
+                      // Insert moduleLogger import and moduleLogger at first source line, both will be auto-sorted
+                      fixer.insertTextBefore(
+                        sourceCode.ast,
+                        `
                   import { logger } from 'lib/logger';
                   const moduleLogger = logger.child({ namespace: ['${fileName}'] })
                   `
-                        ),
-                      ]),
+                      ),
+                    ];
+                return [
+                  ...maybeInsertLoggerImport,
                   fixer.replaceText(
                     consoleCallNode,
                     `moduleLogger.${consoleMethod}(${parsedArgv})`
@@ -93,19 +95,21 @@ const rules = {
                   arg.quasis?.[0]?.value?.cooked
                     ? `\`${arg.quasis?.[0]?.value?.cooked}\``
                     : null;
-                return [
-                  ...(isLoggerDefined
-                    ? []
-                    : [
-                        // Insert moduleLogger import and moduleLogger at first source line, both will be auto-sorted
-                        fixer.insertTextBefore(
-                          sourceCode.ast,
-                          `
+
+                const maybeInsertLoggerImport = isLoggerDefined
+                  ? []
+                  : [
+                      // Insert moduleLogger import and moduleLogger at first source line, both will be auto-sorted
+                      fixer.insertTextBefore(
+                        sourceCode.ast,
+                        `
                   import { logger } from 'lib/logger';
                   const moduleLogger = logger.child({ namespace: ['${fileName}'] })
                   `
-                        ),
-                      ]),
+                      ),
+                    ];
+                return [
+                  ...maybeInsertLoggerImport,
                   fixer.replaceText(
                     consoleCallNode,
                     `moduleLogger.info(${argv
