@@ -28,7 +28,7 @@ const rules = {
         const consoleMethod = node.parent.property.name;
         const consoleCallNode = node.parent.parent;
 
-        // Get logger as a module-level variable i.e import
+        // Get logger as a module-level variable i.e import - if already defined, we shouldn't re-import it
         const isLoggerDefined = getVariableByName(
           sourceCode.scopeManager.globalScope.childScopes[0],
           "logger"
