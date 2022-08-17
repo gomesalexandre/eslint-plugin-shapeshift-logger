@@ -49,16 +49,19 @@ const rules = {
                 const [errorOrWarning, errorTextOrWarningText] =
                   // Handle both (errorTextOrWarningText, errorOrWarning) / (errorOrWarning) arities
                   argv.length === 1 ? [firstArg] : [secondArg, firstArg];
-                const parsedErrorOrWarning = errorOrWarning.raw ?? errorOrWarning.name;
+                const parsedErrorOrWarning =
+                  errorOrWarning.raw ?? errorOrWarning.name;
                 const parsedErrorTextOrWarningText =
-                  errorTextOrWarningText?.raw ?? errorTextOrWarningText?.name ?? null;
+                  errorTextOrWarningText?.raw ??
+                  errorTextOrWarningText?.name ??
+                  null;
                 const parsedrestArgs = (restArgs || [])
                   .map(
                     (restArgsArg) =>
                       restArgsArg?.raw ?? restArgsArg?.name ?? null
                   )
                   .filter(Boolean);
-                const parsedargv = [
+                const parsedArgv = [
                   parsedErrorOrWarning,
                   parsedErrorTextOrWarningText,
                   ...parsedrestArgs,
@@ -80,7 +83,7 @@ const rules = {
                       ]),
                   fixer.replaceText(
                     consoleCallNode,
-                    `moduleLogger.${consoleMethod}(${parsedargv})`
+                    `moduleLogger.${consoleMethod}(${parsedArgv})`
                   ), // Raw litteral, or var name
                 ];
               }
