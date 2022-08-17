@@ -42,19 +42,27 @@ const rules = {
             const filePath = context.getFilename();
             const fileName = path.parse(filePath).name;
             switch (consoleMethod) {
-              case "error": {
+              case "error":
+              case "warn": {
                 const argv = consoleCallNode.arguments;
                 const [firstArg, secondArg, ...restArgs] = argv;
-                const [error, errorText] =
-                  // Handle both (errorText, error) / (error) arities
+                const [errorOrWarning, errorTextOrWarningText] =
+                  // Handle both (errorTextOrWarningText, errorOrWarning) / (errorOrWarning) arities
                   argv.length === 1 ? [firstArg] : [secondArg, firstArg];
-                const parsedError = error.raw ?? error.name;
-                const parsedErrorText =
-                  errorText?.raw ?? errorText?.name ?? null;
+                const parsedErrorOrWarning = errorOrWarning.raw ?? errorOrWarning.name;
+                const parsedErrorTextOrWarningText =
+                  errorTextOrWarningText?.raw ?? errorTextOrWarningText?.name ?? null;
                 const parsedrestArgs = (restArgs || [])
-                  .map((restArgsArg) => restArgsArg?.raw ?? restArgsArg?.name ?? null)
+                  .map(
+                    (restArgsArg) =>
+                      restArgsArg?.raw ?? restArgsArg?.name ?? null
+                  )
                   .filter(Boolean);
-                const parsedargv = [parsedError, parsedErrorText, ...parsedrestArgs]
+                const parsedargv = [
+                  parsedErrorOrWarning,
+                  parsedErrorTextOrWarningText,
+                  ...parsedrestArgs,
+                ]
                   .filter(Boolean)
                   .join(",");
                 return [
@@ -72,7 +80,7 @@ const rules = {
                       ]),
                   fixer.replaceText(
                     consoleCallNode,
-                    `moduleLogger.error(${parsedargv})`
+                    `moduleLogger.${consoleMethod}(${parsedargv})`
                   ), // Raw litteral, or var name
                 ];
               }
@@ -104,45 +112,6 @@ const rules = {
                       )
                       .join(",")})`
                   ), // Cooked litteral, raw litteral or var name
-                ];
-              }
-              case "warn": {
-                const argv = consoleCallNode.arguments;
-                const [firstArg, secondArg, ...restArgs] = argv;
-                const [warning, warningText] =
-                  // Handle both (errorText, error) / (error) arities
-                  argv.length === 1 ? [firstArg] : [secondArg, firstArg];
-                const parsedWarning = warning.raw ?? warning.name;
-                const parsedWarningText =
-                  warningText?.raw ?? warningText?.name ?? null;
-                const parsedrestArgs = (restArgs || [])
-                  .map((restArgsArg) => restArgsArg?.raw ?? restArgsArg?.name ?? null)
-                  .filter(Boolean);
-                const parsedargv = [
-                  parsedWarning,
-                  parsedWarningText,
-                  ...parsedrestArgs,
-                ]
-                  .filter(Boolean)
-                  .join(",");
-
-                return [
-                  ...(isLoggerDefined
-                    ? []
-                    : [
-                        // Insert moduleLogger import and moduleLogger at first source line, both will be auto-sorted
-                        fixer.insertTextBefore(
-                          sourceCode.ast,
-                          `
-                  import { logger } from 'lib/logger';
-                  const moduleLogger = logger.child({ namespace: ['${fileName}'] })
-                  `
-                        ),
-                      ]),
-                  fixer.replaceText(
-                    consoleCallNode,
-                    `moduleLogger.warn(${parsedargv})`
-                  ), // Raw litteral, or var name
                 ];
               }
               default:
